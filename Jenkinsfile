@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        APP_DIR = "${env.WORKSPACE}/deploy"
+    }
+
     stages {
 
         stage('Clone Repository') {
@@ -22,25 +26,32 @@ pipeline {
             }
         }
 
-        stage('Deploy to Server') {
+                stage('Deploy to Server') {
             steps {
-                sh '''
-                APP_DIR=/var/www/blog_app
-                sudo mkdir -p $APP_DIR
+                                sh '''
+                                mkdir -p "$APP_DIR"
 
-                # copy backend + build output
-                sudo rm -rf $APP_DIR/build
-                sudo cp -r build $APP_DIR/
-                sudo cp server.js package.json package-lock.json $APP_DIR/
+                                # copy build + server files
+                                rm -rf "$APP_DIR/build"
+                                cp -r build "$APP_DIR/"
+                                cp server.js package.json package-lock.json "$APP_DIR/"
 
-                # install prod deps on server
-                cd $APP_DIR
-                sudo npm ci --omit=dev
+                                cd "$APP_DIR"
+                                npm ci --omit=dev
 
-                # start/reload API with pm2 (ensure pm2 is installed globally)
-                if ! command -v pm2 >/dev/null 2>&1; then sudo npm install -g pm2; fi
-                sudo pm2 startOrReload server.js --name blog-app -- update-env
-                '''
+                                # write .env if MONGO_URI is provided from Jenkins environment/credential
+                                if [ -n "$MONGO_URI" ]; then
+                                    echo "MONGO_URI=$MONGO_URI" > .env
+                                    echo "PORT=3000" >> .env
+                                else
+                                    echo "Warning: MONGO_URI not set in Jenkins environment; API will not connect." >&2
+                                fi
+
+                                # start/reload API with pm2 (non-sudo, per-user)
+                                if ! command -v pm2 >/dev/null 2>&1; then npm install -g pm2; fi
+                                pm2 startOrReload server.js --name blog-app --update-env
+                                pm2 save
+                                '''
             }
         }
     }
