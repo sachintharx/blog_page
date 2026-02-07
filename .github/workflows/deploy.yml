@@ -54,6 +54,22 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
+          # Validate secrets are set
+          if [ -z "$EC2_HOST" ]; then
+            echo "ERROR: EC2_HOST secret is not set or is empty"
+            exit 1
+          fi
+          if [ -z "$EC2_USER" ]; then
+            echo "ERROR: EC2_USER secret is not set or is empty"
+            exit 1
+          fi
+          if [ -z "$EC2_SSH_KEY" ]; then
+            echo "ERROR: EC2_SSH_KEY secret is not set or is empty"
+            exit 1
+          fi
+
+          echo "Connecting to: $EC2_USER@$EC2_HOST"
+
           # Setup SSH
           mkdir -p ~/.ssh
           echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key.pem
