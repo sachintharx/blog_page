@@ -1,0 +1,13 @@
+{
+  "name": "single-page-html-site",
+  "version": "1.0.0",
+  "description": "A simple single-page HTML site.",
+  "main": "src/index.html",
+  "scripts": {
+    "start": "open src/index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}
