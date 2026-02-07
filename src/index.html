@@ -9,17 +9,48 @@
 <body>
     <header class="site-header">
         <div class="container header-inner">
-            <h1 class="site-title">Hashara's Blog</h1>
+            <div>
+                <p class="eyebrow">Hashara's Blog</p>
+                <h1 class="site-title">Minimal Blog CMS</h1>
+            </div>
             <nav class="main-nav">
-                <a href="#home">Home</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
+                <a href="#posts">Posts</a>
+                <a href="#editor">New Post</a>
             </nav>
         </div>
     </header>
 
     <main class="container site-main">
         <div class="content">
+            <section id="editor" class="panel">
+                <div class="panel-head">
+                    <div>
+                        <p class="eyebrow">Create &amp; Edit</p>
+                        <h2>Manage Posts</h2>
+                    </div>
+                    <div id="status" class="status-pill">Ready</div>
+                </div>
+                <form id="postForm" class="post-form">
+                    <input type="hidden" id="postId" />
+                    <label>
+                        <span>Title</span>
+                        <input type="text" id="title" placeholder="Enter title" required />
+                    </label>
+                    <label>
+                        <span>Date</span>
+                        <input type="date" id="date" required />
+                    </label>
+                    <label>
+                        <span>Content</span>
+                        <textarea id="content" rows="5" placeholder="Write your post..." required></textarea>
+                    </label>
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">Save Post</button>
+                        <button type="button" id="cancelEdit" class="btn ghost">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
             <section id="posts" class="posts">
                 <!-- Posts will be injected by JavaScript -->
             </section>
