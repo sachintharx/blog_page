@@ -1,0 +1,14 @@
+[Unit]
+Description=Flask Blog Application
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/blog_page
+Environment="PATH=/home/ubuntu/blog_page/venv/bin"
+ExecStart=/home/ubuntu/blog_page/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
