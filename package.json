@@ -4,15 +4,23 @@
   "description": "A simple single-page HTML site.",
   "main": "src/index.html",
   "scripts": {
-    "start": "open src/index.html",
+    "start": "node server.js",
+    "dev": "node server.js",
     "clean": "rimraf build",
     "prebuild": "npm run clean",
-    "build": "copyfiles -u 1 \"src/**/*\" build"
+    "build": "copyfiles -u 1 \"src/**/*\" build",
+    "open:static": "open src/index.html"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "copyfiles": "^2.4.1",
     "rimraf": "^3.0.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.3.5"
   }
 }

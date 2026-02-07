@@ -1,30 +1,19 @@
-// Client-side CRUD for blog posts using localStorage
-const STORAGE_KEY = 'blog_posts_v1';
-
-const defaultPosts = [
-	{
-		id: crypto.randomUUID(),
-		title: 'Getting started with my blog',
-		date: '2026-02-08',
-		content: 'Welcome to my new blog — I will share projects, notes, and tutorials here. Stay tuned for more updates!'
-	},
-	{
-		id: crypto.randomUUID(),
-		title: 'Building a simple SPA',
-		date: '2026-02-07',
-		content: 'A lightweight SPA can be built with plain HTML, CSS, and JavaScript. Ship static when you can for speed.'
-	}
-];
-
+// Client-side CRUD using backend API with local fallback cache
+const API = '/api/posts';
+const STORAGE_KEY = 'blog_posts_v1_cache';
 let posts = [];
 
-function loadPosts() {
-	const stored = localStorage.getItem(STORAGE_KEY);
-	posts = stored ? JSON.parse(stored) : defaultPosts;
+function todayISO() {
+	return new Date().toISOString().slice(0, 10);
 }
 
-function savePosts() {
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+function cachePosts(list) {
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+function loadCache() {
+	const raw = localStorage.getItem(STORAGE_KEY);
+	return raw ? JSON.parse(raw) : [];
 }
 
 function setStatus(text) {
@@ -35,7 +24,7 @@ function setStatus(text) {
 function resetForm() {
 	document.getElementById('postId').value = '';
 	document.getElementById('title').value = '';
-	document.getElementById('date').value = '';
+	document.getElementById('date').value = todayISO();
 	document.getElementById('content').value = '';
 	setStatus('Ready');
 }
@@ -69,35 +58,74 @@ function renderPosts() {
 		});
 }
 
-function handleSubmit(e) {
+async function fetchPosts() {
+	try {
+		const res = await fetch(API);
+		if (!res.ok) throw new Error('API error');
+		const data = await res.json();
+		posts = data.map(p => ({ ...p, id: p._id || p.id }));
+		cachePosts(posts);
+		setStatus('Synced');
+	} catch (err) {
+		posts = loadCache();
+		setStatus('Offline (using cache)');
+	}
+	renderPosts();
+}
+
+async function createPost(payload) {
+	const res = await fetch(API, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(payload)
+	});
+	if (!res.ok) throw new Error('Create failed');
+	return res.json();
+}
+
+async function updatePost(id, payload) {
+	const res = await fetch(`${API}/${id}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(payload)
+	});
+	if (!res.ok) throw new Error('Update failed');
+	return res.json();
+}
+
+async function deletePost(id) {
+	const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+	if (!res.ok) throw new Error('Delete failed');
+}
+
+async function handleSubmit(e) {
 	e.preventDefault();
 	const idField = document.getElementById('postId');
 	const title = document.getElementById('title').value.trim();
-	const date = document.getElementById('date').value;
+	const date = document.getElementById('date').value || todayISO();
 	const content = document.getElementById('content').value.trim();
 	if (!title || !date || !content) return;
 
-	if (idField.value) {
-		const idx = posts.findIndex(p => p.id === idField.value);
-		if (idx !== -1) {
-			posts[idx] = { ...posts[idx], title, date, content };
+	try {
+		if (idField.value) {
+			await updatePost(idField.value, { title, date, content });
 			setStatus('Post updated');
+		} else {
+			await createPost({ title, date, content });
+			setStatus('Post created');
 		}
-	} else {
-		posts.unshift({ id: crypto.randomUUID(), title, date, content });
-		setStatus('Post created');
+		await fetchPosts();
+		resetForm();
+	} catch (err) {
+		setStatus('Save failed');
 	}
-
-	savePosts();
-	renderPosts();
-	resetForm();
 }
 
 function handleCancel() {
 	resetForm();
 }
 
-function handleListClick(e) {
+async function handleListClick(e) {
 	const btn = e.target.closest('button[data-action]');
 	if (!btn) return;
 	const id = btn.getAttribute('data-id');
@@ -115,18 +143,20 @@ function handleListClick(e) {
 	if (action === 'delete') {
 		const confirmed = confirm('Delete this post?');
 		if (!confirmed) return;
-		posts = posts.filter(p => p.id !== id);
-		savePosts();
-		renderPosts();
-		resetForm();
-		setStatus('Post deleted');
+		try {
+			await deletePost(id);
+			await fetchPosts();
+			resetForm();
+			setStatus('Post deleted');
+		} catch (err) {
+			setStatus('Delete failed');
+		}
 	}
 }
 
 function init() {
-	loadPosts();
-	renderPosts();
-
+	resetForm();
+	fetchPosts();
 	document.getElementById('postForm').addEventListener('submit', handleSubmit);
 	document.getElementById('cancelEdit').addEventListener('click', handleCancel);
 	document.getElementById('posts').addEventListener('click', handleListClick);
