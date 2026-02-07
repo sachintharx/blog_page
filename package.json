@@ -5,14 +5,14 @@
   "main": "src/index.html",
   "scripts": {
     "start": "open src/index.html",
-    "clean": "rimraf dist",
+    "clean": "rimraf build",
     "prebuild": "npm run clean",
-    "build": "copyfiles -u 1 \"src/**/*\" dist"
+    "build": "copyfiles -u 1 \"src/**/*\" build"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "rimraf": "^6.1.2"
+    "rimraf": "^3.0.2"
   }
 }

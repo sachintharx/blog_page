@@ -12,7 +12,8 @@ single-page-html-site
 │   │   └── styles.css   # Styles for the webpage
 │   └── js
 │       └── main.js      # JavaScript for dynamic behavior
-├── dist/                # Build output directory (generated)
+├── build/               # Build output directory (generated)
+├── Jenkinsfile          # CI/CD pipeline configuration
 ├── package.json         # npm configuration file
 ├── .gitignore           # Files to ignore in version control
 └── README.md            # Project documentation
@@ -41,14 +42,14 @@ To get started with this project, follow these steps:
    ```bash
    npm run build
    ```
-   This will create a `dist/` folder with the production-ready files.
+   This will create a `build/` folder with the production-ready files.
 
-5. **Open the `dist/index.html` file** in your web browser to view the webpage.
+5. **Open the `build/index.html` file** in your web browser to view the webpage.
 
 ## Available Scripts
 
-- `npm run build` - Builds the project by copying files from `src/` to `dist/`
-- `npm run clean` - Removes the `dist/` directory
+- `npm run build` - Builds the project by copying files from `src/` to `build/`
+- `npm run clean` - Removes the `build/` directory
 - `npm start` - Opens the HTML file directly
 
 ## CI/CD Pipeline
