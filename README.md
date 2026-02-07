@@ -12,6 +12,7 @@ single-page-html-site
 │   │   └── styles.css   # Styles for the webpage
 │   └── js
 │       └── main.js      # JavaScript for dynamic behavior
+├── dist/                # Build output directory (generated)
 ├── package.json         # npm configuration file
 ├── .gitignore           # Files to ignore in version control
 └── README.md            # Project documentation
@@ -22,16 +23,41 @@ single-page-html-site
 To get started with this project, follow these steps:
 
 1. **Clone the repository**:
-   ```
+   ```bash
    git clone <repository-url>
    ```
 
 2. **Navigate to the project directory**:
-   ```
-   cd single-page-html-site
+   ```bash
+   cd blog_page
    ```
 
-3. **Open the `index.html` file** in your web browser to view the webpage.
+3. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+4. **Build the project**:
+   ```bash
+   npm run build
+   ```
+   This will create a `dist/` folder with the production-ready files.
+
+5. **Open the `dist/index.html` file** in your web browser to view the webpage.
+
+## Available Scripts
+
+- `npm run build` - Builds the project by copying files from `src/` to `dist/`
+- `npm run clean` - Removes the `dist/` directory
+- `npm start` - Opens the HTML file directly
+
+## CI/CD Pipeline
+
+This project includes a Jenkins pipeline configuration that:
+1. Clones the repository
+2. Installs dependencies
+3. Builds the SPA
+4. Deploys to server
 
 ## Technologies Used
 
@@ -41,4 +67,4 @@ To get started with this project, follow these steps:
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the ISC License.
